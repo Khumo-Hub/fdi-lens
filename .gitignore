@@ -1,0 +1,28 @@
+# Python virtual environments
+backend/venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# SQLite database
+backend/fdi_lens.db
+*.db
+
+# Environment variables / secrets
+.env
+*.env
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+
+# Frontend files - for later
+node_modules/
+dist/
+
+# Operating system files
+.DS_Store
+Thumbs.db
