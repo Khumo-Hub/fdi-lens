@@ -41,4 +41,16 @@ export const getTrends = async () => {
 };
 
 
+export const getProjects = async (params = {}) => {
+  const response = await api.get(
+    "/api/projects",
+    {
+      params,
+    }
+  );
+
+  return response.data;
+};
+
+
 export default api;

@@ -1,3 +1,6 @@
+import ProjectsTable
+  from "./components/projects/ProjectsTable";
+
 import { useEffect, useState } from "react";
 
 import {
@@ -546,6 +549,8 @@ function App() {
           </div>
 
         </section>
+
+       <ProjectsTable />
 
       </main>
 
