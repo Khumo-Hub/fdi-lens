@@ -3,6 +3,8 @@ from datetime import date, timedelta
 
 from faker import Faker
 
+from .country_coordinates import COUNTRY_COORDINATES
+
 from .database import SessionLocal
 from .models import Country, Sector, Company, FDIProject
 
@@ -138,10 +140,22 @@ def seed_database():
 
         for code, name, region in COUNTRIES:
 
+            coordinates = COUNTRY_COORDINATES.get(
+                code
+            )
+
+            latitude = None
+            longitude = None
+
+            if coordinates:
+                latitude, longitude = coordinates
+
             country = Country(
                 code=code,
                 name=name,
-                region=region
+                region=region,
+                latitude=latitude,
+                longitude=longitude,
             )
 
             db.add(country)

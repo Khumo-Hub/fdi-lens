@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, extract, asc, desc
 
 from .database import get_db
-from .models import FDIProject, Company, Sector
+from .models import FDIProject, Company, Sector, Country
 
 
 app = FastAPI(
@@ -18,6 +18,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -454,5 +456,100 @@ def get_investment_trends(
             "total_capex_usd": row.total_capex_usd or 0,
             "total_jobs": row.total_jobs or 0
         }
+        for row in results
+    ]
+
+
+
+@app.get("/api/analytics/map")
+def get_investment_map(
+    db: Session = Depends(get_db)
+):
+
+    results = (
+        db.query(
+            Country.code.label(
+                "country_code"
+            ),
+            Country.name.label(
+                "country_name"
+            ),
+            Country.region.label(
+                "region"
+            ),
+            Country.latitude.label(
+                "latitude"
+            ),
+            Country.longitude.label(
+                "longitude"
+            ),
+            func.count(
+                FDIProject.id
+            ).label(
+                "project_count"
+            ),
+            func.sum(
+                FDIProject.capex_usd
+            ).label(
+                "total_capex_usd"
+            ),
+            func.sum(
+                FDIProject.jobs_created
+            ).label(
+                "total_jobs"
+            ),
+        )
+        .join(
+            FDIProject,
+            FDIProject.destination_country_code
+            == Country.code
+        )
+        .filter(
+            Country.latitude.isnot(None),
+            Country.longitude.isnot(None),
+        )
+        .group_by(
+            Country.code,
+            Country.name,
+            Country.region,
+            Country.latitude,
+            Country.longitude,
+        )
+        .order_by(
+            func.count(
+                FDIProject.id
+            ).desc()
+        )
+        .all()
+    )
+
+
+    return [
+        {
+            "country_code":
+                row.country_code,
+
+            "country_name":
+                row.country_name,
+
+            "region":
+                row.region,
+
+            "latitude":
+                row.latitude,
+
+            "longitude":
+                row.longitude,
+
+            "project_count":
+                row.project_count,
+
+            "total_capex_usd":
+                row.total_capex_usd or 0,
+
+            "total_jobs":
+                row.total_jobs or 0,
+        }
+
         for row in results
     ]

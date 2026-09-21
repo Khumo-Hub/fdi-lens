@@ -84,4 +84,15 @@ export const getProjects =
   };
 
 
+export const getMapData =
+  async () => {
+
+    const response = await api.get(
+      "/api/analytics/map"
+    );
+
+    return response.data;
+  };
+
+
 export default api;

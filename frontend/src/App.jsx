@@ -1,7 +1,13 @@
+import InvestmentMap
+  from "./components/InvestmentMap";
+
 import ProjectsTable
   from "./components/projects/ProjectsTable";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import {
   BarChart,
@@ -26,50 +32,97 @@ import "./App.css";
 
 
 function App() {
-  const [summary, setSummary] = useState(null);
-  const [destinations, setDestinations] = useState([]);
-  const [sectors, setSectors] = useState([]);
-  const [trends, setTrends] = useState([]);
 
-  const [trendMetric, setTrendMetric] = useState(
+  const [
+    summary,
+    setSummary
+  ] = useState(null);
+
+  const [
+    destinations,
+    setDestinations
+  ] = useState([]);
+
+  const [
+    sectors,
+    setSectors
+  ] = useState([]);
+
+  const [
+    trends,
+    setTrends
+  ] = useState([]);
+
+  const [
+    trendMetric,
+    setTrendMetric
+  ] = useState(
     "project_count"
   );
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
+
+  const [
+    error,
+    setError
+  ] = useState(null);
 
 
   useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        const [
-          summaryData,
-          destinationData,
-          sectorData,
-          trendData,
-        ] = await Promise.all([
-          getSummary(),
-          getTopDestinations(),
-          getTopSectors(),
-          getTrends(),
-        ]);
 
-        setSummary(summaryData);
-        setDestinations(destinationData);
-        setSectors(sectorData);
-        setTrends(trendData);
+    const loadDashboard =
+      async () => {
 
-      } catch (err) {
-        console.error(err);
+        try {
 
-        setError(
-          "Could not load FDI data."
-        );
+          const [
+            summaryData,
+            destinationData,
+            sectorData,
+            trendData,
+          ] =
+            await Promise.all([
+              getSummary(),
+              getTopDestinations(),
+              getTopSectors(),
+              getTrends(),
+            ]);
 
-      } finally {
-        setLoading(false);
-      }
-    };
+
+          setSummary(
+            summaryData
+          );
+
+          setDestinations(
+            destinationData
+          );
+
+          setSectors(
+            sectorData
+          );
+
+          setTrends(
+            trendData
+          );
+
+        } catch (err) {
+
+          console.error(err);
+
+          setError(
+            "Could not load FDI data."
+          );
+
+        } finally {
+
+          setLoading(false);
+
+        }
+      };
+
 
     loadDashboard();
 
@@ -77,78 +130,116 @@ function App() {
 
 
   if (loading) {
+
     return (
+
       <div className="status">
         Loading FDI Lens...
       </div>
+
     );
   }
 
 
   if (error) {
+
     return (
+
       <div className="status">
         {error}
       </div>
+
     );
   }
 
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency: "USD",
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }
-    ).format(value);
-  };
+  const formatCurrency =
+    (value) => {
+
+      return new Intl.NumberFormat(
+        "en-US",
+        {
+          style: "currency",
+          currency: "USD",
+          notation: "compact",
+          maximumFractionDigits: 1,
+        }
+      ).format(value);
+    };
 
 
-  const formatNumber = (value) => {
-    return new Intl.NumberFormat(
-      "en-US"
-    ).format(value);
-  };
+  const formatNumber =
+    (value) => {
+
+      return new Intl.NumberFormat(
+        "en-US"
+      ).format(value);
+    };
 
 
   const getTrendLabel = () => {
-    if (trendMetric === "total_capex_usd") {
+
+    if (
+      trendMetric ===
+      "total_capex_usd"
+    ) {
+
       return "Capital Investment";
     }
 
-    if (trendMetric === "total_jobs") {
+
+    if (
+      trendMetric ===
+      "total_jobs"
+    ) {
+
       return "Jobs Created";
     }
+
 
     return "FDI Projects";
   };
 
 
-  const formatTrendValue = (value) => {
-    if (trendMetric === "total_capex_usd") {
-      return formatCurrency(value);
-    }
+  const formatTrendValue =
+    (value) => {
 
-    return formatNumber(value);
-  };
+      if (
+        trendMetric ===
+        "total_capex_usd"
+      ) {
+
+        return formatCurrency(
+          value
+        );
+      }
+
+
+      return formatNumber(
+        value
+      );
+    };
 
 
   return (
+
     <div className="app">
 
       <header className="header">
 
         <div>
-          <h1>FDI Lens</h1>
+
+          <h1>
+            FDI Lens
+          </h1>
 
           <p>
             Global Greenfield Investment
             Intelligence Platform
           </p>
+
         </div>
+
 
         <span className="data-badge">
           Synthetic Demo Data
@@ -159,7 +250,9 @@ function App() {
 
       <main>
 
-        <section className="dashboard-heading">
+        <section
+          className="dashboard-heading"
+        >
 
           <h2>
             Global Investment Overview
@@ -184,9 +277,11 @@ function App() {
             </div>
 
             <div className="kpi-value">
+
               {formatNumber(
                 summary.total_projects
               )}
+
             </div>
 
             <div className="kpi-footer">
@@ -203,9 +298,11 @@ function App() {
             </div>
 
             <div className="kpi-value">
+
               {formatCurrency(
                 summary.total_capex_usd
               )}
+
             </div>
 
             <div className="kpi-footer">
@@ -222,9 +319,11 @@ function App() {
             </div>
 
             <div className="kpi-value">
+
               {formatNumber(
                 summary.total_jobs
               )}
+
             </div>
 
             <div className="kpi-footer">
@@ -241,9 +340,11 @@ function App() {
             </div>
 
             <div className="kpi-value">
+
               {formatNumber(
                 summary.countries_count
               )}
+
             </div>
 
             <div className="kpi-footer">
@@ -262,6 +363,7 @@ function App() {
             <div className="chart-header">
 
               <div>
+
                 <h3>
                   Top FDI Destination Countries
                 </h3>
@@ -270,6 +372,7 @@ function App() {
                   Ranked by number of
                   investment projects
                 </p>
+
               </div>
 
             </div>
@@ -283,7 +386,9 @@ function App() {
               >
 
                 <BarChart
-                  data={destinations}
+                  data={
+                    destinations
+                  }
                   layout="vertical"
                   margin={{
                     top: 10,
@@ -299,7 +404,9 @@ function App() {
 
                   <XAxis
                     type="number"
-                    allowDecimals={false}
+                    allowDecimals={
+                      false
+                    }
                   />
 
                   <YAxis
@@ -311,7 +418,8 @@ function App() {
                   <Tooltip />
 
                   <Bar
-                    dataKey="project_count"
+                    dataKey=
+                      "project_count"
                     name="FDI Projects"
                   />
 
@@ -329,6 +437,7 @@ function App() {
             <div className="chart-header">
 
               <div>
+
                 <h3>
                   Top FDI Sectors
                 </h3>
@@ -337,6 +446,7 @@ function App() {
                   Ranked by total
                   capital investment
                 </p>
+
               </div>
 
             </div>
@@ -366,10 +476,14 @@ function App() {
 
                   <XAxis
                     type="number"
-                    tickFormatter={(value) =>
-                      `$${(
-                        value / 1_000_000_000
-                      ).toFixed(0)}B`
+                    tickFormatter={
+                      (value) =>
+                        `$${(
+                          value /
+                          1_000_000_000
+                        ).toFixed(
+                          0
+                        )}B`
                     }
                   />
 
@@ -380,15 +494,21 @@ function App() {
                   />
 
                   <Tooltip
-                    formatter={(value) => [
-                      formatCurrency(value),
-                      "Capital Investment",
-                    ]}
+                    formatter={
+                      (value) => [
+                        formatCurrency(
+                          value
+                        ),
+                        "Capital Investment",
+                      ]
+                    }
                   />
 
                   <Bar
-                    dataKey="total_capex_usd"
-                    name="Capital Investment"
+                    dataKey=
+                      "total_capex_usd"
+                    name=
+                      "Capital Investment"
                   />
 
                 </BarChart>
@@ -402,11 +522,15 @@ function App() {
         </section>
 
 
-        <section className="chart-card trend-card">
+        <section
+          className=
+            "chart-card trend-card"
+        >
 
           <div className="chart-header">
 
             <div>
+
               <h3>
                 Monthly FDI Investment Trend
               </h3>
@@ -415,14 +539,18 @@ function App() {
                 Track investment activity
                 over time
               </p>
+
             </div>
 
 
-            <div className="trend-controls">
+            <div
+              className="trend-controls"
+            >
 
               <button
                 className={
-                  trendMetric === "project_count"
+                  trendMetric ===
+                  "project_count"
                     ? "trend-button active"
                     : "trend-button"
                 }
@@ -438,7 +566,8 @@ function App() {
 
               <button
                 className={
-                  trendMetric === "total_capex_usd"
+                  trendMetric ===
+                  "total_capex_usd"
                     ? "trend-button active"
                     : "trend-button"
                 }
@@ -454,7 +583,8 @@ function App() {
 
               <button
                 className={
-                  trendMetric === "total_jobs"
+                  trendMetric ===
+                  "total_jobs"
                     ? "trend-button active"
                     : "trend-button"
                 }
@@ -472,7 +602,10 @@ function App() {
           </div>
 
 
-          <div className="trend-chart-container">
+          <div
+            className=
+              "trend-chart-container"
+          >
 
             <ResponsiveContainer
               width="100%"
@@ -498,41 +631,61 @@ function App() {
                 />
 
                 <YAxis
-                  tickFormatter={(value) => {
-                    if (
-                      trendMetric ===
-                      "total_capex_usd"
-                    ) {
-                      return `$${(
-                        value /
-                        1_000_000_000
-                      ).toFixed(0)}B`;
-                    }
+                  tickFormatter={
+                    (value) => {
 
-                    if (
-                      trendMetric ===
-                      "total_jobs"
-                    ) {
-                      return `${(
-                        value / 1000
-                      ).toFixed(0)}K`;
-                    }
+                      if (
+                        trendMetric ===
+                        "total_capex_usd"
+                      ) {
 
-                    return value;
-                  }}
+                        return `$${(
+                          value /
+                          1_000_000_000
+                        ).toFixed(
+                          0
+                        )}B`;
+                      }
+
+
+                      if (
+                        trendMetric ===
+                        "total_jobs"
+                      ) {
+
+                        return `${(
+                          value /
+                          1000
+                        ).toFixed(
+                          0
+                        )}K`;
+                      }
+
+
+                      return value;
+                    }
+                  }
                 />
 
                 <Tooltip
-                  formatter={(value) => [
-                    formatTrendValue(value),
-                    getTrendLabel(),
-                  ]}
+                  formatter={
+                    (value) => [
+                      formatTrendValue(
+                        value
+                      ),
+                      getTrendLabel(),
+                    ]
+                  }
                 />
 
                 <Line
                   type="monotone"
-                  dataKey={trendMetric}
-                  name={getTrendLabel()}
+                  dataKey={
+                    trendMetric
+                  }
+                  name={
+                    getTrendLabel()
+                  }
                   strokeWidth={3}
                   dot={{
                     r: 3,
@@ -550,11 +703,21 @@ function App() {
 
         </section>
 
-       <ProjectsTable />
+
+        {/* Global FDI Investment Map */}
+
+        <InvestmentMap />
+
+
+        {/* Investment Projects Browser */}
+
+        <ProjectsTable />
+
 
       </main>
 
     </div>
+
   );
 }
 
