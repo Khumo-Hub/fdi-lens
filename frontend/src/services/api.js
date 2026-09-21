@@ -1,11 +1,25 @@
 import axios from "axios";
 
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL;
+
+
+if (!API_BASE_URL) {
+  throw new Error(
+    "VITE_API_URL is not configured. " +
+    "Add it to the frontend environment file."
+  );
+}
+
+
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: API_BASE_URL,
 });
 
 
 export const getSummary = async () => {
+
   const response = await api.get(
     "/api/analytics/summary"
   );
@@ -14,25 +28,40 @@ export const getSummary = async () => {
 };
 
 
-export const getTopDestinations = async () => {
-  const response = await api.get(
-    "/api/analytics/top-destinations?limit=10"
-  );
+export const getTopDestinations =
+  async () => {
 
-  return response.data;
-};
+    const response = await api.get(
+      "/api/analytics/top-destinations",
+      {
+        params: {
+          limit: 10,
+        },
+      }
+    );
+
+    return response.data;
+  };
 
 
-export const getTopSectors = async () => {
-  const response = await api.get(
-    "/api/analytics/top-sectors?limit=10"
-  );
+export const getTopSectors =
+  async () => {
 
-  return response.data;
-};
+    const response = await api.get(
+      "/api/analytics/top-sectors",
+      {
+        params: {
+          limit: 10,
+        },
+      }
+    );
+
+    return response.data;
+  };
 
 
 export const getTrends = async () => {
+
   const response = await api.get(
     "/api/analytics/trends"
   );
@@ -41,16 +70,18 @@ export const getTrends = async () => {
 };
 
 
-export const getProjects = async (params = {}) => {
-  const response = await api.get(
-    "/api/projects",
-    {
-      params,
-    }
-  );
+export const getProjects =
+  async (params = {}) => {
 
-  return response.data;
-};
+    const response = await api.get(
+      "/api/projects",
+      {
+        params,
+      }
+    );
+
+    return response.data;
+  };
 
 
 export default api;
