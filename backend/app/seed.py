@@ -3,6 +3,8 @@ from datetime import date, timedelta
 
 from faker import Faker
 
+from .country_coordinates import COUNTRY_COORDINATES
+
 from .database import SessionLocal
 from .models import Country, Sector, Company, FDIProject
 
