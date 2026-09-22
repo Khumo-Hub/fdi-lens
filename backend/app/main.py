@@ -1,7 +1,7 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends, Query
-from sqlalchemy.orm import Session
-from sqlalchemy import func, extract, asc, desc
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy import func, extract, asc, desc, or_
 
 from .database import get_db
 from .models import FDIProject, Company, Sector, Country
@@ -31,6 +31,162 @@ app.add_middleware(
 def home():
     return {
         "message": "Welcome to the FDI Lens API"
+    }
+
+
+@app.get("/api/search")
+def global_search(
+    q: str = Query(
+        ...,
+        min_length=2,
+        max_length=100
+    ),
+    limit: int = Query(
+        default=5,
+        ge=1,
+        le=10
+    ),
+    db: Session = Depends(get_db)
+):
+    search_term = q.strip()
+
+    if len(search_term) < 2:
+        return {
+            "query": search_term,
+            "companies": [],
+            "projects": [],
+            "countries": [],
+            "sectors": [],
+        }
+
+    pattern = f"%{search_term}%"
+
+    companies = (
+        db.query(Company)
+        .filter(
+            or_(
+                Company.name.ilike(pattern),
+                Company.industry.ilike(pattern),
+                Company.description.ilike(pattern),
+            )
+        )
+        .order_by(Company.name.asc())
+        .limit(limit)
+        .all()
+    )
+
+    countries = (
+        db.query(Country)
+        .filter(
+            or_(
+                Country.name.ilike(pattern),
+                Country.code.ilike(pattern),
+                Country.region.ilike(pattern),
+            )
+        )
+        .order_by(Country.name.asc())
+        .limit(limit)
+        .all()
+    )
+
+    sectors = (
+        db.query(Sector)
+        .filter(
+            or_(
+                Sector.name.ilike(pattern),
+                Sector.cluster.ilike(pattern),
+            )
+        )
+        .order_by(Sector.name.asc())
+        .limit(limit)
+        .all()
+    )
+
+    source_country = aliased(Country)
+    destination_country = aliased(Country)
+
+    projects = (
+        db.query(FDIProject)
+        .join(Company)
+        .join(Sector)
+        .join(
+            source_country,
+            FDIProject.source_country_code
+            == source_country.code
+        )
+        .join(
+            destination_country,
+            FDIProject.destination_country_code
+            == destination_country.code
+        )
+        .filter(
+            or_(
+                Company.name.ilike(pattern),
+                Company.industry.ilike(pattern),
+                FDIProject.description.ilike(pattern),
+                FDIProject.project_type.ilike(pattern),
+                Sector.name.ilike(pattern),
+                Sector.cluster.ilike(pattern),
+                source_country.name.ilike(pattern),
+                source_country.code.ilike(pattern),
+                destination_country.name.ilike(pattern),
+                destination_country.code.ilike(pattern),
+            )
+        )
+        .order_by(
+            FDIProject.announcement_date.desc()
+        )
+        .limit(limit)
+        .all()
+    )
+
+    return {
+        "query": search_term,
+        "companies": [
+            {
+                "id": company.id,
+                "name": company.name,
+                "headquarters_country":
+                    company.headquarters_country,
+                "industry": company.industry,
+            }
+            for company in companies
+        ],
+        "projects": [
+            {
+                "id": project.id,
+                "company": project.company.name,
+                "source_country":
+                    project.source_country_code,
+                "destination_country":
+                    project.destination_country_code,
+                "sector": project.sector.name,
+                "project_type": project.project_type,
+                "capex_usd": project.capex_usd,
+                "jobs_created": project.jobs_created,
+                "announcement_date":
+                    project.announcement_date,
+                "status": project.status,
+                "description": project.description,
+            }
+            for project in projects
+        ],
+        "countries": [
+            {
+                "code": country.code,
+                "name": country.name,
+                "region": country.region,
+            }
+            for country in countries
+        ],
+        "sectors": [
+            {
+                "id": sector.id,
+                "name": sector.name,
+                "cluster": sector.cluster,
+            }
+            for sector in sectors
+        ],
     }
 
 
