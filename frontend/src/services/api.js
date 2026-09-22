@@ -95,4 +95,21 @@ export const getMapData =
   };
 
 
+export const searchGlobal =
+  async (query, limit = 5) => {
+
+    const response = await api.get(
+      "/api/search",
+      {
+        params: {
+          q: query,
+          limit,
+        },
+      }
+    );
+
+    return response.data;
+  };
+
+
 export default api;
