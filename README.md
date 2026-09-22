@@ -1,8 +1,17 @@
 # FDI Lens
 
-**FDI Lens** is a full-stack foreign direct investment intelligence platform for exploring global greenfield investment activity through interactive analytics, maps, trends, and a searchable project browser.
+**FDI Lens** is a full-stack foreign direct investment intelligence platform for exploring global greenfield investment activity through interactive analytics, maps, trends, global search, and a searchable project browser.
 
 > **Portfolio/demo project:** the current application uses synthetic data generated for demonstration purposes. The architecture is designed so the demo dataset can later be replaced by validated public or licensed FDI data sources.
+
+## Live application
+
+- **Frontend:** https://fdi-lens.vercel.app
+- **Backend API:** https://fdi-lens-api-production.up.railway.app
+- **Interactive API docs:** https://fdi-lens-api-production.up.railway.app/docs
+- **Health check:** https://fdi-lens-api-production.up.railway.app/health
+
+The frontend is deployed on **Vercel** and the FastAPI backend is deployed on **Railway**.
 
 ## What the application does
 
@@ -14,13 +23,17 @@ FDI Lens turns structured investment-project data into an interactive decision-s
 - Top destination-country analysis
 - Sector analysis ranked by capital investment
 - Monthly investment trends with switchable project, capex, and jobs metrics
-- Interactive global investment map
+- Interactive global investment map using country-level reference coordinates
+- Global search across projects, companies, countries, sectors, and project descriptions
+- `Ctrl + K` keyboard shortcut for global search
 - Searchable and filterable investment-project browser
+- Project-detail modal for individual investment records
 - Server-side filtering, sorting, and pagination
 - REST API built with FastAPI
 - Relational data model using SQLAlchemy and SQLite
 - React frontend with Recharts and Leaflet
 - GitHub Actions CI for frontend lint/build checks and backend validation
+- Production deployment using Vercel and Railway
 
 ## Why I built it
 
@@ -34,21 +47,27 @@ The project is also a practical full-stack engineering exercise covering:
 - analytical aggregation;
 - data visualisation;
 - geographic visualisation;
-- CI automation; and
+- search and discovery;
+- CI automation;
+- cloud deployment; and
 - iterative development through GitHub pull requests.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A[Investment project data] --> B[(SQLite database)]
+    A[Investment project data] --> B[(SQLite demo database)]
     B --> C[FastAPI + SQLAlchemy]
-    C --> D[REST analytics endpoints]
-    D --> E[React frontend]
+    C --> D[REST analytics and search API]
+    D --> E[React + Vite frontend]
     E --> F[KPI dashboard]
     E --> G[Recharts analytics]
     E --> H[Leaflet global map]
     E --> I[Projects browser]
+    E --> J[Global search]
+
+    C --> K[Railway]
+    E --> L[Vercel]
 ```
 
 ## Technology stack
@@ -60,15 +79,20 @@ flowchart LR
 | Backend | Python, FastAPI |
 | Data | SQLAlchemy, SQLite |
 | Demo data | Faker + synthetic FDI records |
+| Search | FastAPI + SQLAlchemy query layer |
 | Quality | Oxlint, Python compile/import checks |
 | CI | GitHub Actions |
+| Deployment | Vercel, Railway |
 
 ## API capabilities
 
-The backend currently exposes endpoints for:
+The live backend currently exposes:
 
 | Endpoint | Purpose |
 | --- | --- |
+| `GET /` | API welcome endpoint |
+| `GET /health` | Deployment health check |
+| `GET /api/search?q={query}` | Global search across FDI data |
 | `GET /api/projects` | Browse investment projects with filters, sorting, and pagination |
 | `GET /api/analytics/summary` | Headline portfolio metrics |
 | `GET /api/analytics/top-destinations` | Rank destination countries |
@@ -79,21 +103,63 @@ The backend currently exposes endpoints for:
 
 Project queries support filters including destination country, source country, sector, date range, capital expenditure, project type, and company name.
 
+Global search returns grouped results for projects, companies, countries, and sectors.
+
+## Production deployment
+
+The production architecture is:
+
+```text
+GitHub
+  |
+  +-- frontend/  --> Vercel
+  |                 https://fdi-lens.vercel.app
+  |
+  +-- backend/   --> Railway
+                    https://fdi-lens-api-production.up.railway.app
+```
+
+The frontend uses:
+
+```env
+VITE_API_URL=https://fdi-lens-api-production.up.railway.app
+```
+
+The backend uses a configurable CORS origin through:
+
+```env
+FRONTEND_ORIGINS=https://fdi-lens.vercel.app
+```
+
+### Deployment data note
+
+The current cloud deployment intentionally uses the synthetic SQLite demo dataset so the portfolio application can run with minimal infrastructure. The database is created and seeded when the backend environment starts.
+
+For a more production-oriented version, the next database step is to migrate persistence to PostgreSQL.
+
 ## Repository structure
 
 ```text
 fdi-lens/
 ├── backend/
+│   ├── main.py
+│   ├── requirements.txt
 │   └── app/
 │       ├── main.py
 │       ├── models.py
 │       ├── database.py
 │       ├── create_db.py
-│       └── seed.py
+│       ├── seed.py
+│       ├── country_coordinates.py
+│       └── update_country_coordinates.py
 ├── frontend/
 │   └── src/
 │       ├── components/
+│       │   ├── GlobalSearch.jsx
+│       │   ├── InvestmentMap.jsx
+│       │   └── projects/
 │       ├── services/
+│       │   └── api.js
 │       └── App.jsx
 ├── .github/
 │   └── workflows/
@@ -161,26 +227,43 @@ This repository is intentionally developed as an engineering portfolio project r
 - separation between frontend, backend, and data layers;
 - parameterised API filtering and pagination;
 - reusable frontend API services;
+- debounced global search;
 - explicit environment configuration;
 - automated CI checks on pushes and pull requests;
-- linting and production build validation for the frontend; and
-- backend compile and application-import checks.
+- linting and production build validation for the frontend;
+- backend compile and application-import checks;
+- production CORS configuration;
+- health-check support for cloud hosting; and
+- separate frontend and backend cloud deployment.
 
 ## Current status
 
-The core full-stack dashboard is functional with synthetic demonstration data. Current capabilities include analytics, trends, mapping, and project browsing.
+The full-stack portfolio application is live and functional with synthetic demonstration data.
+
+Current capabilities include:
+
+- analytics dashboard;
+- time-series trends;
+- interactive global map;
+- global search;
+- project filtering and pagination;
+- project-detail views;
+- live FastAPI documentation;
+- GitHub Actions CI; and
+- public cloud deployment.
 
 ## Next improvements
 
 Planned extensions include:
 
-- deployment of the frontend and API;
-- automated tests for API behaviour and frontend components;
-- PostgreSQL support for a production-style deployment;
+- PostgreSQL support for durable production-style persistence;
+- automated API and frontend component tests;
 - ingestion of validated public FDI datasets;
-- richer country and company drill-down views; and
-- exportable analytical reports.
+- richer country and company drill-down views;
+- exportable analytical reports;
+- improved accessibility and keyboard navigation for global search; and
+- stale-request protection for rapid search queries.
 
 ---
 
-Built as a portfolio project to demonstrate practical full-stack software development, API design, analytics, and data visualisation.
+Built as a portfolio project to demonstrate practical full-stack software development, API design, analytics, search, data visualisation, CI/CD, and cloud deployment.
