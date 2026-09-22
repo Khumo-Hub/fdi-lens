@@ -1,6 +1,9 @@
 import InvestmentMap
   from "./components/InvestmentMap";
 
+import GlobalSearch
+  from "./components/GlobalSearch";
+
 import ProjectsTable
   from "./components/projects/ProjectsTable";
 
@@ -241,9 +244,15 @@ function App() {
         </div>
 
 
-        <span className="data-badge">
-          Synthetic Demo Data
-        </span>
+        <div className="header-actions">
+
+          <GlobalSearch />
+
+          <span className="data-badge">
+            Synthetic Demo Data
+          </span>
+
+        </div>
 
       </header>
 
