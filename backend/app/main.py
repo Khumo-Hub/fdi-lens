@@ -1,3 +1,5 @@
+import os
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends, Query
 from sqlalchemy.orm import Session, aliased
@@ -13,14 +15,31 @@ app = FastAPI(
     version="1.0.0"
 )
 
+DEFAULT_FRONTEND_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+]
+
+configured_origins = os.getenv(
+    "FRONTEND_ORIGINS",
+    ""
+)
+
+frontend_origins = [
+    origin.strip()
+    for origin in configured_origins.split(",")
+    if origin.strip()
+]
+
+if not frontend_origins:
+    frontend_origins = DEFAULT_FRONTEND_ORIGINS
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-    ],
+    allow_origins=frontend_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,6 +50,14 @@ app.add_middleware(
 def home():
     return {
         "message": "Welcome to the FDI Lens API"
+    }
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "service": "fdi-lens-api"
     }
 
 
