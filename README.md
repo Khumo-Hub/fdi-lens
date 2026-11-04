@@ -6,12 +6,17 @@
 
 ## Live application
 
-- **Frontend:** https://fdi-lens.vercel.app
-- **Backend API:** https://fdi-lens-api-production.up.railway.app
+**[Launch FDI Lens — Interactive Portfolio Preview](https://fdi-lens.netlify.app)**
+
+The **Netlify preview** is a standalone frontend (built as HTML, CSS and JavaScript). Its dashboard, charts, map, search, filtering, and project details run in the browser using **synthetic demo data**; no backend service is needed for this preview.
+
+- **Recruiter preview (Netlify):** https://fdi-lens.netlify.app
+- **Full-stack frontend (Vercel):** https://fdi-lens.vercel.app
+- **Full-stack backend API (Railway):** https://fdi-lens-api-production.up.railway.app
 - **Interactive API docs:** https://fdi-lens-api-production.up.railway.app/docs
 - **Health check:** https://fdi-lens-api-production.up.railway.app/health
 
-The frontend is deployed on **Vercel** and the FastAPI backend is deployed on **Railway**.
+The original full-stack version remains available: the React frontend runs on **Vercel** and communicates with the FastAPI backend on **Railway**. The Netlify version is a separate JavaScript-only portfolio demonstration.
 
 ## What the application does
 
@@ -68,6 +73,7 @@ flowchart LR
 
     C --> K[Railway]
     E --> L[Vercel]
+    E --> M[Netlify static preview]
 ```
 
 ## Technology stack
@@ -82,7 +88,7 @@ flowchart LR
 | Search | FastAPI + SQLAlchemy query layer |
 | Quality | Oxlint, Python compile/import checks |
 | CI | GitHub Actions |
-| Deployment | Vercel, Railway |
+| Deployment | Netlify (static preview); Vercel + Railway (full stack) |
 
 ## API capabilities
 
@@ -105,19 +111,28 @@ Project queries support filters including destination country, source country, s
 
 Global search returns grouped results for projects, companies, countries, and sectors.
 
-## Production deployment
+## Deployment options
 
-The production architecture is:
+The repository supports two deployment modes:
 
 ```text
-GitHub
+GitHub: Khumo-Hub/fdi-lens
   |
-  +-- frontend/  --> Vercel
+  +-- frontend/  --> Netlify (static, browser-side demo)
+  |                 https://fdi-lens.netlify.app
+  |                 VITE_DEMO_MODE=true
+  |
+  +-- frontend/  --> Vercel (full-stack frontend)
   |                 https://fdi-lens.vercel.app
+  |                 VITE_API_URL=<Railway backend URL>
   |
-  +-- backend/   --> Railway
+  +-- backend/   --> Railway (FastAPI + SQLite demo database)
                     https://fdi-lens-api-production.up.railway.app
 ```
+
+To build the standalone **Netlify preview**, use base directory `frontend`, build command `npm run build`, publish output `dist` (shown in some Netlify interfaces as `frontend/dist`) and set `VITE_DEMO_MODE=true`. The browser processes all preview data locally; do not configure `VITE_API_URL` for that deployment.
+
+The original Vercel + Railway integration is unchanged.
 
 The frontend uses:
 
@@ -238,7 +253,7 @@ This repository is intentionally developed as an engineering portfolio project r
 
 ## Current status
 
-The full-stack portfolio application is live and functional with synthetic demonstration data.
+The project is available as a **standalone recruiter preview on Netlify** and as a **full-stack React/FastAPI demonstration on Vercel + Railway**. Both use synthetic demonstration data.
 
 Current capabilities include:
 
