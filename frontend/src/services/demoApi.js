@@ -480,9 +480,12 @@ const endDate = Date.UTC(2026, 8, 1);
 const countryByCode = new Map(COUNTRIES.map((country) => [country.code, country]));
 
 export const PROJECTS = Array.from({ length: 500 }, (_, index) => {
-  const company = index < COMPANIES.length
-    ? COMPANIES[index]
-    : pick(COMPANIES);
+  const company = index < COUNTRIES.length
+    ? COMPANIES.find((item) =>
+        item.headquarters_country !== COUNTRIES[index].code)
+    : index < COMPANIES.length
+      ? COMPANIES[index]
+      : pick(COMPANIES);
   const sector = index < SECTORS.length
     ? SECTORS[index]
     : pick(SECTORS);
@@ -597,8 +600,8 @@ export async function getTrends() {
       row.total_jobs += stats.total_jobs;
       monthly.set(month, row);
       return monthly;
-    }, new Map())
-;
+    }, new Map());
+
   return [...monthly.values()].sort((a, b) => a.month.localeCompare(b.month));
 }
 
